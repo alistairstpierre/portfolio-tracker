@@ -1,0 +1,37 @@
+img{
+    width: 128px;
+    height: 128px;
+}
+
+.portfolio{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.loading-image {
+    width: 128px;
+    height: 128px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('/static/placeholder.png');
+    margin: auto;
+}
+
+.hidden{
+    display: none;
+}
+
+.collection-container{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-content: center;
+}
+
+.nfts-container{
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+}

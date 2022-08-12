@@ -4,8 +4,110 @@
     Home
 {% endblock %}
 
+{% block nav %}
+    <nav class="bg-light border navbar navbar-expand-md navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">NFTPortfolio</a>
+            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+{% endblock %}
+
 {% block main %}
-    <form action="/" method="post">
-        <button class="btn btn-primary" type="submit">Load data</button>
-    </form>
+
+    {% if nfts %}
+        <form action="/" method="post">
+            <button id="connectWallet" class="hidden" type="submit">Sign Out</button>
+        </form>
+    {% else %}
+        <h1>Connect Your MetaMask Wallet Here!</h1>
+        <button id="connectWallet" class="hidden" onCLick="" type="submit">Connect Wallet</button>
+
+        <p id="walletAddress"></p>
+        <p id="walletBalance"></p>
+
+        <form action="/" method="post">
+            <input id="walletSubmit" type="hidden" name="hidden" value="">
+            <button id="loadPortfolio" class="btn btn-primary hidden" type="submit">Load Portfolio</button>
+        </form>
+    {% endif %}
+
+    <br class="mb-5">
+
+    <div class="portfolio">
+        {% for collection in collections %}
+            <div class="collection-container">
+                <h2>{{ collection['owned'] }} {{ collection['name'] }}</h2>
+                <div>
+                    <p>1-Day Floor Price: {{ collection['onedayprice'] }} 7-Day Floor Price: {{ collection['sevendayprice'] }}</p>
+                    <p>Total value: {{ collection['totalprice'] }}</p>
+                </div>
+                <div class="nfts-container">
+                    {% for nft in nfts %}
+                        {% if nft['name'] == collection['name'] %}
+                            <div class="loading-image">
+                                <div class="myimage" style="background-image:url('{{ nft["token_uri"] }}'); background-size: contain; background-repeat: no-repeat;"><img /></div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <br class="mb-2">
+        {% endfor %}
+    </div>
+
+    <script type="text/javascript">
+        window.walletAddress = null
+        const loadPortfolio = document.getElementById('loadPortfolio')
+        const walletSubmit = document.getElementById('walletSubmit')
+        const connectWallet = document.getElementById('connectWallet')
+        const walletAddress = document.getElementById('walletAddress')
+        const walletBalance = document.getElementById('walletBalance')
+
+        function checkInstalled() {
+            if (typeof window.ethereum == 'undefined'){
+                walletAddress.innerText = "MetaMask isn't installed, please install it"
+                return false
+            }
+            connectWallet.classList.remove('hidden')
+            connectWallet.addEventListener('click', connectWalletWithMetaMask)
+        }
+
+        async function connectWalletWithMetaMask(){
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+            if(!accounts) {
+                return
+            }
+
+            window.walletAddress = account
+            walletAddress.innerText = window.walletAddress
+            walletSubmit.setAttribute('value', window.walletAddress)
+            loadPortfolio.classList.remove('hidden')
+
+            connectWallet.innerText = 'Sign Out'
+            connectWallet.removeEventListener('click', connectWalletWithMetaMask)
+            setTimeout(() => {
+                connectWallet.addEventListener('click', signOutFromMetaMask)
+            }, 200 );
+        }
+
+        function signOutFromMetaMask(){
+            window.walletAddress = null
+            walletAddress.innerText = ''
+            connectWallet.innerText = 'Connect Wallet'
+
+            connectWallet.removeEventListener('click', signOutFromMetaMask)
+            setTimeout(() => {
+                connectWallet.addEventListener('click', connectWalletWithMetaMask)
+            }, 200 );
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkInstalled()
+        });
+
+    </script>
 {% endblock %}
